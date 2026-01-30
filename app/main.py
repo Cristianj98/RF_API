@@ -4,15 +4,58 @@ Módulo principal de la aplicación RF App API.
 Este módulo define la aplicación FastAPI y configura los routers.
 """
 
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import ejemplo  # Importa tu router
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import text
+
+from app.database import Base, engine, get_db
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    """Código que se ejecuta al iniciar"""
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    # Código que se ejecuta al cerrar (opcional)
+    await engine.dispose()
+
 
 app = FastAPI(
-    title="RF App API",
-    description="API para aplicación RF",
-    version="1.0.0"
+    title="LDPSA App API",
+    description="API para aplicación LDPSA",
+    version="1.0.0",
+    lifespan=lifespan
 )
+
+
+@app.get("/")
+def root():
+    """Ruta raíz de la API."""
+    return {"mensaje": "API Campeonatos funcionando"}
+
+
+@app.get("/health")
+async def health_check(db: AsyncSession = Depends(get_db)):
+    """Verifica la conexión a la base de datos."""
+    try:
+        await db.execute(text("SELECT 1"))  # <- Envuelve en text()
+        return {
+            "status": "ok",
+            "database": "connected",
+            "message": "Conexión exitosa a PostgreSQL"
+        }
+    except SQLAlchemyError as e:
+        return {
+            "status": "error",
+            "database": "disconnected",
+            "error": str(e)
+        }
+
 
 # Configurar CORS
 app.add_middleware(
@@ -22,31 +65,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Incluir routers
-app.include_router(ejemplo.router)
-
-
-@app.get("/")
-def read_root():
-    """
-    Endpoint raíz de la API.
-    Returns:
-        dict: Mensaje de bienvenida y metadata de la API
-    """
-    return {
-        "message": "Bienvenido a RF App API",
-        "documentation": "/docs",
-        "version": "1.0.0"
-    }
-
-
-@app.get("/health")
-def health_check():
-    """
-    Endpoint de verificación de salud.
-
-    Returns:
-        dict: Estado del servicio
-    """
-    return {"status": "healthy", "service": "RF App"}

@@ -1,10 +1,27 @@
-# Python
-python-multipart==0.0.6
-pydantic-settings==2.1.0
+# Framework web principal
+fastapi==0.128.0
 
-# Framework
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
+# Servidor ASGI para correr FastAPI
+uvicorn==0.40.0
 
-# Database
+# ORM para trabajar con bases de datos
+SQLAlchemy==2.0.46
+
+# Herramientas de migración de base de datos
+alembic==1.18.1
+
+# Driver asíncrono para PostgreSQL
+asyncpg==0.31.0
+
+# Driver estándar para PostgreSQL
+psycopg2-binary==2.9.11
+
+# Validación de datos y serialización
+pydantic==2.12.5
+
+# Gestión de configuración con Pydantic
+pydantic-settings==2.12.0
+
+# Carga de variables de entorno desde .env
+python-dotenv==1.2.1
 

@@ -1,0 +1,12 @@
+# Database
+DATABASE_URL=postgresql+asyncpg://usuario:password@localhost:5432/nombre_db
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=tu_usuario
+DB_PASSWORD=tu_password
+DB_NAME=campeonatos_futbol
+
+# App
+APP_NAME=RF App
+DEBUG=True
+SECRET_KEY=tu_clave_secreta_muy_segura_aquí

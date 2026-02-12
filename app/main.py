@@ -13,6 +13,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import text
 
 from app.database import Base, engine, get_db
+# importar modelos para crear tablas
+from app.models import Base, Usuario, Campeonato, ReporteJugador
+from app.routers import usuarios
 
 
 @asynccontextmanager
@@ -31,6 +34,10 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+
+# Routes
+app.include_router(usuarios.router)
 
 
 @app.get("/")

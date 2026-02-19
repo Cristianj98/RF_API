@@ -12,7 +12,6 @@ class CampeonatoBase(BaseModel):
     fecha_fin: Optional[datetime] = None
     canton: Optional[str] = Field(None, min_length=1, max_length=100)
     parroquia: Optional[str] = Field(None, min_length=1, max_length=100)
-    direction: Optional[str] = Field(None, min_length=1, max_length=200)
     estado: Optional[str] = Field(
         default="activo",
         description="activo, suspendido, finalizado"
@@ -31,7 +30,6 @@ class CampeonatoUpdate(CampeonatoBase):
     fecha_fin: Optional[datetime] = None
     canton: Optional[str] = None
     parroquia: Optional[str] = None
-    direction: Optional[str] = None
     estado: Optional[str] = None
 
 

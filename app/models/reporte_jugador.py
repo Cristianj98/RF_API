@@ -20,10 +20,12 @@ class ReporteJugador(Base):
     # Ficha técnica, Informe, etc.
     tipo_reporte = Column(String, nullable=True)
     fecha_reporte = Column(
-        DateTime, default=lambda: datetime.now(timezone.utc))
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
-                        onupdate=lambda: datetime.now(timezone.utc))
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    created_at = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc))
 
     jugador = relationship("Usuario", back_populates="reportes")
     campeonato = relationship("Campeonato", back_populates="reportes")

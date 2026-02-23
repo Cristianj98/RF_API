@@ -1,4 +1,8 @@
 """Script para poblar la base de datos con datos de prueba."""
+from app.database import AsyncSessionLocal
+from app.models.usuario import Usuario
+from app.models.campeonato import Campeonato
+from app.models.reporte_jugador import ReporteJugador
 import asyncio
 import sys
 from pathlib import Path
@@ -6,11 +10,6 @@ from pathlib import Path
 # Añadir el directorio raíz al path
 root_path = Path(__file__).parent.parent
 sys.path.insert(0, str(root_path))
-
-from app.models.reporte_jugador import ReporteJugador
-from app.models.campeonato import Campeonato
-from app.models.usuario import Usuario
-from app.database import AsyncSessionLocal
 
 
 async def seed_database():

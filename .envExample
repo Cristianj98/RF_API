@@ -10,3 +10,4 @@ DB_NAME=campeonatos_futbol
 APP_NAME=RF App
 DEBUG=True
 SECRET_KEY=tu_clave_secreta_muy_segura_aquí
+

@@ -1,8 +1,9 @@
 """Script para poblar la base de datos con datos de prueba."""
-from app.database import AsyncSessionLocal
-from app.models.usuario import Usuario
-from app.models.campeonato import Campeonato
 from app.models.reporte_jugador import ReporteJugador
+from app.models.campeonato import Campeonato
+from app.models.usuario import Usuario
+from app.database import AsyncSessionLocal
+from app.core.security import get_password_hash
 import asyncio
 import sys
 from pathlib import Path
@@ -66,7 +67,7 @@ async def seed_database():
                     "apellidos": "Pérez López",
                     "cedula": "1804567890",
                     "username": "juanperez",
-                    "password": "password123",
+                    "password": get_password_hash("password123"),
                     "email": "juan.perez@email.com",
                     "telefono": "0987654321",
                     "direction": "Barrio Centro",

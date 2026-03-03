@@ -1,9 +1,4 @@
 """Script de pruebas QA para la API."""
-from sqlalchemy import select
-from app.database import AsyncSessionLocal
-from app.models.usuario import Usuario
-from app.models.campeonato import Campeonato
-from app.models.reporte_jugador import ReporteJugador
 import asyncio
 import sys
 from pathlib import Path
@@ -12,6 +7,11 @@ from pathlib import Path
 root_path = Path(__file__).parent.parent
 sys.path.insert(0, str(root_path))
 
+from sqlalchemy import select
+from app.database import AsyncSessionLocal
+from app.models.usuario import Usuario
+from app.models.campeonato import Campeonato
+from app.models.reporte_jugador import ReporteJugador
 
 async def test_data():
     """Verificar y mostrar datos de prueba."""

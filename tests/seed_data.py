@@ -1,9 +1,4 @@
 """Script para poblar la base de datos con datos de prueba."""
-from app.models.reporte_jugador import ReporteJugador
-from app.models.campeonato import Campeonato
-from app.models.usuario import Usuario
-from app.database import AsyncSessionLocal
-from app.core.security import get_password_hash
 import asyncio
 import sys
 from pathlib import Path
@@ -12,6 +7,11 @@ from pathlib import Path
 root_path = Path(__file__).parent.parent
 sys.path.insert(0, str(root_path))
 
+from app.models.reporte_jugador import ReporteJugador
+from app.models.campeonato import Campeonato
+from app.models.usuario import Usuario
+from app.database import AsyncSessionLocal
+from app.core.security import get_password_hash
 
 async def seed_database():
     """Poblar la base de datos con datos de prueba."""

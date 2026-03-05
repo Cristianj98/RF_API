@@ -7,6 +7,7 @@ from sqlalchemy import select
 from app.database import get_db
 from app.models.usuario import Usuario
 from app.schemas.usuario import UsuarioCreate, UsuarioUpdate, UsuarioResponse
+from app.core.dependencies import require_admin, require_authenticated
 
 
 router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
@@ -15,7 +16,8 @@ router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
 @router.post(
     "/",
     response_model=UsuarioResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)]
 )
 async def crear_usuario(
     usuario: UsuarioCreate,
@@ -43,7 +45,11 @@ async def crear_usuario(
     return db_usuario
 
 
-@router.get("/", response_model=List[UsuarioResponse])
+@router.get(
+    "/",
+    response_model=List[UsuarioResponse],
+    dependencies=[Depends(require_authenticated)]
+)
 async def listar_usuarios(
     skip: int = 0,
     limit: int = 100,
@@ -55,7 +61,11 @@ async def listar_usuarios(
     )).scalars().all()
 
 
-@router.get("/{usuario_id}", response_model=UsuarioResponse)
+@router.get(
+    "/{usuario_id}",
+    response_model=UsuarioResponse,
+    dependencies=[Depends(require_authenticated)]
+)
 async def obtener_usuario(
     usuario_id: int,
     db: AsyncSession = Depends(get_db)
@@ -77,6 +87,7 @@ async def obtener_usuario(
 async def actualizar_usuario(
     usuario_id: int,
     usuario_update: UsuarioUpdate,
+    current_user: Usuario = Depends(require_authenticated),
     db: AsyncSession = Depends(get_db)
 ):
     """Actualizar un usuario."""
@@ -88,7 +99,16 @@ async def actualizar_usuario(
             detail="Usuario no encontrado"
         )
 
-    # Actualizar solo campos no nulos
+    # Validar que actualice su propia información o que sea admin
+    if db_usuario.id != current_user.id and current_user.rol not in [
+        "Administrador",
+        "SuperAdministrador"
+    ]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No puedes editar la información de otro usuario"
+        )
+
     update_data = usuario_update.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(db_usuario, field, value)
@@ -98,7 +118,11 @@ async def actualizar_usuario(
     return db_usuario
 
 
-@router.delete("/{usuario_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{usuario_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_admin)]
+)
 async def eliminar_usuario(
     usuario_id: int,
     db: AsyncSession = Depends(get_db)

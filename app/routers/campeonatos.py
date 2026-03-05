@@ -11,6 +11,10 @@ from app.schemas.campeonato import (
     CampeonatoResponse,
     CampeonatoUpdate
 )
+from app.core.dependencies import (
+    require_authenticated,
+    require_directivo_campeonato
+)
 
 router = APIRouter(prefix="/campeonatos", tags=["Campeonatos"])
 
@@ -18,8 +22,9 @@ router = APIRouter(prefix="/campeonatos", tags=["Campeonatos"])
 @router.post(
     "/",
     response_model=CampeonatoResponse,
-    status_code=status.HTTP_201_CREATED
-    )
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_directivo_campeonato)]
+)
 async def crear_campeonato(
     campeonato: CampeonatoCreate,
     db: AsyncSession = Depends(get_db)
@@ -42,7 +47,11 @@ async def crear_campeonato(
     return db_campeonato
 
 
-@router.get("/", response_model=List[CampeonatoResponse])
+@router.get(
+    "/",
+    response_model=List[CampeonatoResponse],
+    dependencies=[Depends(require_authenticated)]
+)
 async def listar_campeonatos(
     skip: int = 0,
     limit: int = 100,
@@ -58,7 +67,11 @@ async def listar_campeonatos(
     return result.scalars().all()
 
 
-@router.get("/{campeonato_id}", response_model=CampeonatoResponse)
+@router.get(
+    "/{campeonato_id}",
+    response_model=CampeonatoResponse,
+    dependencies=[Depends(require_authenticated)]
+)
 async def obtener_campeonato(
     campeonato_id: int,
     db: AsyncSession = Depends(get_db)
@@ -76,7 +89,11 @@ async def obtener_campeonato(
     return campeonato
 
 
-@router.put("/{campeonato_id}", response_model=CampeonatoResponse)
+@router.put(
+    "/{campeonato_id}",
+    response_model=CampeonatoResponse,
+    dependencies=[Depends(require_directivo_campeonato)]
+)
 async def actualizar_campeonato(
     campeonato_id: int,
     campeonato_update: CampeonatoUpdate,
@@ -103,7 +120,11 @@ async def actualizar_campeonato(
     return db_campeonato
 
 
-@router.delete("/{campeonato_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{campeonato_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_directivo_campeonato)]
+)
 async def eliminar_campeonato(
     campeonato_id: int,
     db: AsyncSession = Depends(get_db)

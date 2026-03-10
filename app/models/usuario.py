@@ -28,3 +28,5 @@ class Usuario(Base):
                         onupdate=lambda: datetime.now(timezone.utc))
 
     reportes = relationship("ReporteJugador", back_populates="jugador")
+    equipos = relationship("JugadorEquipo", back_populates="usuario")
+    directivas = relationship("DirectivaEquipo", back_populates="usuario")

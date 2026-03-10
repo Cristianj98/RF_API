@@ -11,6 +11,12 @@ from app.schemas.campeonato import (
     CampeonatoUpdate,
     CampeonatoResponse
 )
+from app.schemas.equipo import (
+    EquipoBase,
+    EquipoCreate,
+    EquipoUpdate,
+    EquipoResponse
+)
 from app.schemas.reporte_jugador import (
     ReporteJugadorBase,
     ReporteJugadorCreate,

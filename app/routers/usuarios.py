@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
+from app.core.security import get_password_hash
 from app.database import get_db
 from app.models.usuario import Usuario
 from app.schemas.usuario import UsuarioCreate, UsuarioUpdate, UsuarioResponse
@@ -37,8 +38,10 @@ async def crear_usuario(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Usuario, cédula o email ya existe"
         )
+    user_dict = usuario.model_dump()
+    user_dict["password"] = get_password_hash(usuario.password)
 
-    db_usuario = Usuario(**usuario.model_dump())
+    db_usuario = Usuario(**user_dict)
     db.add(db_usuario)
     await db.commit()
     await db.refresh(db_usuario)

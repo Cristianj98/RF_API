@@ -10,13 +10,13 @@ class JugadorEquipoCreate(BaseModel):
     """Schema para asignar un jugador a un equipo."""
     usuario_id: int
     equipo_id: int
-    numero_camiseta: Optional[int] = None
+    dorsal: Optional[int] = None
     posicion: Optional[str] = None
 
 
 class JugadorEquipoUpdate(BaseModel):
     """Schema para actualizar datos del jugador en el equipo."""
-    numero_camiseta: Optional[int] = None
+    dorsal: Optional[int] = None
     posicion: Optional[str] = None
 
 
@@ -25,7 +25,7 @@ class JugadorEquipoResponse(BaseModel):
     id: int
     usuario_id: int
     equipo_id: int
-    numero_camiseta: Optional[int]
+    dorsal: Optional[int]
     posicion: Optional[str]
     created_at: datetime
 

@@ -38,15 +38,7 @@ async def asignar_jugador(
     )).scalar_one_or_none()
 
     if not usuario:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Usuario no encontrado"
-        )
-    if usuario.rol != "Jugador":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El usuario no tiene rol de Jugador"
-        )
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
     # Verificar que el equipo existe
     equipo = (await db.execute(
@@ -54,10 +46,12 @@ async def asignar_jugador(
     )).scalar_one_or_none()
 
     if not equipo:
+        raise HTTPException(status_code=404, detail="Equipo no encontrado")
+
+    # Ahora sí validar el rol
+    if usuario.rol != "Jugador":
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Equipo no encontrado"
-        )
+            status_code=400, detail="El usuario no tiene rol de Jugador")
 
     # Verificar que el jugador no esté ya en ese equipo
     existente = (await db.execute(

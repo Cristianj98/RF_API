@@ -43,11 +43,6 @@ async def asignar_directivo(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Usuario no encontrado"
         )
-    if usuario.rol != "Directivo":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El usuario no tiene rol de Directivo"
-        )
 
     # Verificar que el equipo existe
     equipo = (await db.execute(
@@ -58,6 +53,12 @@ async def asignar_directivo(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Equipo no encontrado"
+        )
+
+    if usuario.rol != "Directivo":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El usuario no tiene rol de Directivo"
         )
 
     # Verificar que el directivo no esté ya en ese equipo

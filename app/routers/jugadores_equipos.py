@@ -32,39 +32,36 @@ async def asignar_jugador(
     db: AsyncSession = Depends(get_db)
 ):
     """Asignar un jugador (usuario) a un equipo."""
-    # Verificar que el usuario existe y tiene rol Jugador
     usuario = (await db.execute(
         select(Usuario).where(Usuario.id == datos.usuario_id)
     )).scalar_one_or_none()
-
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    # Verificar que el equipo existe
     equipo = (await db.execute(
         select(Equipo).where(Equipo.id == datos.equipo_id)
     )).scalar_one_or_none()
-
     if not equipo:
         raise HTTPException(status_code=404, detail="Equipo no encontrado")
 
-    # Ahora sí validar el rol
     if usuario.rol != "Jugador":
         raise HTTPException(
             status_code=400, detail="El usuario no tiene rol de Jugador")
 
-    # Verificar que el jugador no esté ya en ese equipo
-    existente = (await db.execute(
-        select(JugadorEquipo).where(
+    # Cubre tanto mismo equipo como mismo campeonato en una sola consulta
+    conflicto = (await db.execute(
+        select(JugadorEquipo)
+        .join(Equipo, JugadorEquipo.equipo_id == Equipo.id)
+        .where(
             JugadorEquipo.usuario_id == datos.usuario_id,
-            JugadorEquipo.equipo_id == datos.equipo_id
+            Equipo.campeonato_id == equipo.campeonato_id
         )
     )).scalar_one_or_none()
 
-    if existente:
+    if conflicto:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El jugador ya está asignado a este equipo"
+            detail="El jugador ya pertenece a un equipo en este campeonato"
         )
 
     db_jugador = JugadorEquipo(**datos.model_dump())
@@ -108,7 +105,7 @@ async def actualizar_jugador_equipo(
     if not db_jugador:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Registro no encontrado"
+            detail="Jugador en equipo no encontrado"
         )
 
     update_data = datos.model_dump(exclude_unset=True)
@@ -137,7 +134,7 @@ async def remover_jugador_equipo(
     if not db_jugador:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Registro no encontrado"
+            detail="Jugador en equipo no encontrado"
         )
 
     await db.delete(db_jugador)

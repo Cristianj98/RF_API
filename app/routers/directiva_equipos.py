@@ -116,7 +116,7 @@ async def actualizar_directivo(
     if not db_directiva:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Registro no encontrado"
+            detail="Directivo en equipo no encontrado"
         )
 
     update_data = datos.model_dump(exclude_unset=True)
@@ -145,7 +145,7 @@ async def remover_directivo(
     if not db_directiva:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Registro no encontrado"
+            detail="Directivo en equipo no encontrado"
         )
 
     await db.delete(db_directiva)

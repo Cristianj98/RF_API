@@ -65,7 +65,6 @@ app.include_router(posiciones.router)
 app.include_router(evento_partido.router)
 
 
-
 @app.get("/")
 def root():
     """Ruta raíz de la API."""

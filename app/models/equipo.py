@@ -25,3 +25,17 @@ class Equipo(Base):
     campeonato = relationship("Campeonato", back_populates="equipos")
     jugadores = relationship("JugadorEquipo", back_populates="equipo")
     directiva = relationship("DirectivaEquipo", back_populates="equipo")
+    partidos_local = relationship(
+        "Partido",
+        foreign_keys="Partido.equipo_local_id",
+        back_populates="equipo_local"
+    )
+    partidos_visitante = relationship(
+        "Partido",
+        foreign_keys="Partido.equipo_visitante_id",
+        back_populates="equipo_visitante"
+    )
+    actas = relationship("ActaPartido", back_populates="equipo")
+    eventos = relationship("EventoPartido", back_populates="equipo")
+    posicion = relationship("Posicion", back_populates="equipo")
+    estadisticas = relationship("EstadisticaEquipo", back_populates="equipo")

@@ -26,3 +26,9 @@ class Campeonato(Base):
 
     reportes = relationship("ReporteJugador", back_populates="campeonato")
     equipos = relationship("Equipo", back_populates="campeonato")
+    partidos = relationship("Partido", back_populates="campeonato")
+    posiciones = relationship("Posicion", back_populates="campeonato")
+    estadisticas_jugadores = relationship(
+        "EstadisticaJugador", back_populates="campeonato")
+    estadisticas_equipos = relationship(
+        "EstadisticaEquipo", back_populates="campeonato")

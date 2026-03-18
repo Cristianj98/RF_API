@@ -21,7 +21,13 @@ from app.routers import (
     auth,
     equipo,
     jugadores_equipos,
-    directiva_equipos
+    directiva_equipos,
+    partidos,
+    acta_partido,
+    estadisticas_jugadores,
+    estadisticas_equipos,
+    evento_partido,
+    posiciones
 )
 
 
@@ -51,6 +57,13 @@ app.include_router(auth.router)
 app.include_router(equipo.router)
 app.include_router(jugadores_equipos.router)
 app.include_router(directiva_equipos.router)
+app.include_router(partidos.router)
+app.include_router(acta_partido.router)
+app.include_router(estadisticas_jugadores.router)
+app.include_router(estadisticas_equipos.router)
+app.include_router(posiciones.router)
+app.include_router(evento_partido.router)
+
 
 
 @app.get("/")

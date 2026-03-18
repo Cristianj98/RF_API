@@ -30,3 +30,10 @@ class Usuario(Base):
     reportes = relationship("ReporteJugador", back_populates="jugador")
     equipos = relationship("JugadorEquipo", back_populates="usuario")
     directivas = relationship("DirectivaEquipo", back_populates="usuario")
+    actas = relationship("ActaPartido", back_populates="jugador")
+    eventos = relationship(
+        "EventoPartido",
+        foreign_keys="EventoPartido.jugador_id",
+        back_populates="jugador"
+    )
+    estadisticas = relationship("EstadisticaJugador", back_populates="jugador")

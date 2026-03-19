@@ -100,7 +100,12 @@ async def registrar_evento(
                 detail="El jugador que sale no está convocado en el acta"
             )
 
-    db_evento = EventoPartido(**datos.model_dump())
+    # Normalizar jugador_sale_id a None si no es Cambio
+    datos_dict = datos.model_dump()
+    if datos.tipo != "Cambio":
+        datos_dict["jugador_sale_id"] = None
+
+    db_evento = EventoPartido(**datos_dict)
     db.add(db_evento)
     await db.commit()
     await db.refresh(db_evento)

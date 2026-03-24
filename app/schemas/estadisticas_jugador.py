@@ -4,6 +4,38 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
+class JugadorResumen(BaseModel):
+    """Descripción del jugador."""
+    id: int
+    nombres: str
+    apellidos: str
+
+    class Config:
+        """Crear desde atributos de objetos ORM."""
+        from_attributes = True
+
+
+class EquipoResumen(BaseModel):
+    """Descripción del equipo."""
+    id: int
+    nombre: str
+    logo_url: Optional[str] = None
+
+    class Config:
+        """Crear desde atributos de objetos ORM."""
+        from_attributes = True
+
+
+class CampeonatoResumen(BaseModel):
+    """Descripción del campeonato."""
+    id: int
+    nombre: str
+
+    class Config:
+        """Crear desde atributos de objetos ORM."""
+        from_attributes = True
+
+
 class EstadisticaJugadorBase(BaseModel):
     """Esquema base para EstadisticaJugador."""
     jugador_id: int
@@ -29,11 +61,30 @@ class EstadisticaJugadorUpdate(BaseModel):
 
 
 class EstadisticaJugadorResponse(EstadisticaJugadorBase):
-    """Esquema de respuesta para EstadisticaJugador."""
+    """Esquema de respuesta simple con IDs."""
     id: int
     created_at: datetime
     updated_at: datetime
 
     class Config:
-        """Clase de configuración para EstadisticaJugadorResponse."""
+        """Crear desde atributos de objetos ORM."""
+        from_attributes = True
+
+
+class EstadisticaJugadorDetalleResponse(BaseModel):
+    """Esquema de respuesta enriquecido."""
+    id: int
+    goles: int
+    asistencias: int
+    tarjetas_amarillas: int
+    tarjetas_rojas: int
+    partidos_jugados: int
+    jugador: JugadorResumen
+    equipo: Optional[EquipoResumen] = None
+    campeonato: CampeonatoResumen
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        """Crear desde atributos de objetos ORM."""
         from_attributes = True

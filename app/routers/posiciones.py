@@ -2,6 +2,7 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -11,7 +12,8 @@ from app.models.equipo import Equipo
 from app.schemas.posiciones import (
     PosicionCreate,
     PosicionResponse,
-    PosicionUpdate
+    PosicionUpdate,
+    PosicionDetalleResponse
 )
 from app.core.dependencies import require_authenticated, require_admin
 
@@ -71,7 +73,7 @@ async def crear_posicion(
 
 @router.get(
     "/campeonato/{campeonato_id}",
-    response_model=List[PosicionResponse],
+    response_model=List[PosicionDetalleResponse],
     dependencies=[Depends(require_authenticated)]
 )
 async def tabla_posiciones(
@@ -86,7 +88,10 @@ async def tabla_posiciones(
     if not campeonato:
         raise HTTPException(status_code=404, detail="Campeonato no encontrado")
 
-    query = select(Posicion).where(Posicion.campeonato_id == campeonato_id)
+    query = select(Posicion).options(
+        joinedload(Posicion.equipo),
+        joinedload(Posicion.campeonato)
+    ).where(Posicion.campeonato_id == campeonato_id)
     if serie:
         query = query.where(Posicion.serie == serie)
 
@@ -102,7 +107,7 @@ async def tabla_posiciones(
 
 @router.get(
     "/{posicion_id}",
-    response_model=PosicionResponse,
+    response_model=PosicionDetalleResponse,
     dependencies=[Depends(require_authenticated)]
 )
 async def obtener_posicion(
@@ -111,7 +116,11 @@ async def obtener_posicion(
 ):
     """Obtener posición por ID."""
     posicion = (await db.execute(
-        select(Posicion).where(Posicion.id == posicion_id)
+        select(Posicion)
+        .options(
+            joinedload(Posicion.equipo),
+            joinedload(Posicion.campeonato))
+        .where(Posicion.id == posicion_id)
     )).scalar_one_or_none()
     if not posicion:
         raise HTTPException(status_code=404, detail="Posición no encontrada")

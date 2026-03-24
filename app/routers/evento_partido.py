@@ -2,6 +2,7 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -10,7 +11,8 @@ from app.models.partido import Partido
 from app.models.acta_partido import ActaPartido
 from app.schemas.evento_partido import (
     EventoPartidoCreate,
-    EventoPartidoResponse
+    EventoPartidoResponse,
+    EventoPartidoDetalleResponse
 )
 from app.core.dependencies import require_authenticated, require_admin
 
@@ -114,7 +116,7 @@ async def registrar_evento(
 
 @router.get(
     "/partido/{partido_id}",
-    response_model=List[EventoPartidoResponse],
+    response_model=List[EventoPartidoDetalleResponse],
     dependencies=[Depends(require_authenticated)]
 )
 async def listar_eventos_partido(
@@ -129,7 +131,11 @@ async def listar_eventos_partido(
     if not partido:
         raise HTTPException(status_code=404, detail="Partido no encontrado")
 
-    query = select(EventoPartido).where(EventoPartido.partido_id == partido_id)
+    query = select(EventoPartido).options(
+        joinedload(EventoPartido.jugador),
+        joinedload(EventoPartido.equipo),
+        joinedload(EventoPartido.jugador_sale)
+    ).where(EventoPartido.partido_id == partido_id)
     if tipo:
         if tipo not in TIPOS_VALIDOS:
             raise HTTPException(

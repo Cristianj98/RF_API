@@ -3,12 +3,18 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.database import get_db
 from app.models.partido import Partido
 from app.models.campeonato import Campeonato
 from app.models.equipo import Equipo
-from app.schemas.partido import PartidoCreate, PartidoUpdate, PartidoResponse
+from app.schemas.partido import (
+    PartidoCreate,
+    PartidoDetalleResponse,
+    PartidoUpdate,
+    PartidoResponse
+)
 from app.core.dependencies import require_authenticated, require_admin
 from app.services.partido_service import finalizar_partido
 
@@ -84,7 +90,7 @@ async def crear_partido(
 
 @router.get(
     "/",
-    response_model=List[PartidoResponse],
+    response_model=List[PartidoDetalleResponse],
     dependencies=[Depends(require_authenticated)]
 )
 async def listar_partidos(
@@ -96,7 +102,11 @@ async def listar_partidos(
     db: AsyncSession = Depends(get_db)
 ):
     """Listar partidos con filtros opcionales."""
-    query = select(Partido)
+    query = select(Partido).options(
+        joinedload(Partido.campeonato),
+        joinedload(Partido.equipo_local),
+        joinedload(Partido.equipo_visitante)
+    )
     if campeonato_id:
         query = query.where(Partido.campeonato_id == campeonato_id)
     if jornada:
@@ -110,7 +120,7 @@ async def listar_partidos(
 
 @router.get(
     "/{partido_id}",
-    response_model=PartidoResponse,
+    response_model=PartidoDetalleResponse,
     dependencies=[Depends(require_authenticated)]
 )
 async def obtener_partido(
@@ -119,7 +129,13 @@ async def obtener_partido(
 ):
     """Obtener un partido por su ID."""
     partido = (await db.execute(
-        select(Partido).where(Partido.id == partido_id)
+        select(Partido)
+        .options(
+            joinedload(Partido.campeonato),
+            joinedload(Partido.equipo_local),
+            joinedload(Partido.equipo_visitante)
+        )
+        .where(Partido.id == partido_id)
     )).scalar_one_or_none()
     if not partido:
         raise HTTPException(status_code=404, detail="Partido no encontrado")
@@ -128,7 +144,7 @@ async def obtener_partido(
 
 @router.put(
     "/{partido_id}",
-    response_model=PartidoResponse,
+    response_model=PartidoDetalleResponse,
     dependencies=[Depends(require_admin)]
 )
 async def actualizar_partido(
@@ -162,14 +178,20 @@ async def actualizar_partido(
     for field, value in update_data.items():
         setattr(db_partido, field, value)
 
-    # Si el partido se está finalizando, ejecutar la lógica automática
     if datos.estado == "Finalizado":
         await finalizar_partido(db, db_partido)
     else:
         await db.commit()
-        await db.refresh(db_partido)
 
-    return db_partido
+    return (await db.execute(
+        select(Partido)
+        .options(
+            joinedload(Partido.campeonato),
+            joinedload(Partido.equipo_local),
+            joinedload(Partido.equipo_visitante)
+        )
+        .where(Partido.id == partido_id)
+    )).scalar_one()
 
 
 @router.delete(

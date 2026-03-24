@@ -2,6 +2,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -13,7 +14,8 @@ from app.models.jugador_equipo import JugadorEquipo
 from app.schemas.acta_partido import (
     ActaPartidoCreate,
     ActaPartidoUpdate,
-    ActaPartidoResponse
+    ActaPartidoResponse,
+    ActaPartidoDetalleResponse
 )
 from app.core.dependencies import require_authenticated, require_admin
 
@@ -98,7 +100,7 @@ async def agregar_jugador_acta(
 
 @router.get(
     "/partido/{partido_id}",
-    response_model=List[ActaPartidoResponse],
+    response_model=List[ActaPartidoDetalleResponse],
     dependencies=[Depends(require_authenticated)]
 )
 async def listar_acta_partido(
@@ -113,7 +115,12 @@ async def listar_acta_partido(
         raise HTTPException(status_code=404, detail="Partido no encontrado")
 
     result = await db.execute(
-        select(ActaPartido).where(ActaPartido.partido_id == partido_id)
+        select(ActaPartido)
+        .options(
+            joinedload(ActaPartido.jugador),
+            joinedload(ActaPartido.equipo)
+        )
+        .where(ActaPartido.partido_id == partido_id)
     )
     return result.scalars().all()
 

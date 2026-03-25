@@ -4,6 +4,27 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
+class EquipoResumen(BaseModel):
+    """Enriquecedor de JSON"""
+    id: int
+    nombre: str
+    logo_url: Optional[str] = None
+
+    class Config:
+        """Crear desde atributos de objetos ORM."""
+        from_attributes = True
+
+
+class CampeonatoResumen(BaseModel):
+    """Atributos para nombres de campeonatos"""
+    id: int
+    nombre: str
+
+    class Config:
+        """Crear desde atributos de objetos ORM."""
+        from_attributes = True
+
+
 class EstadisticaEquipoBase(BaseModel):
     """Esquema base para EstadisticaEquipo."""
     equipo_id: int
@@ -33,11 +54,31 @@ class EstadisticaEquipoUpdate(BaseModel):
 
 
 class EstadisticaEquipoResponse(EstadisticaEquipoBase):
-    """Esquema de respuesta para EstadisticaEquipo."""
+    """Esquema de respuesta simple con IDs."""
     id: int
     created_at: datetime
     updated_at: datetime
 
     class Config:
-        """Clase de configuración para EstadisticaEquipoResponse."""
+        """Crear desde atributos de objetos ORM."""
+        from_attributes = True
+
+
+class EstadisticaEquipoDetalleResponse(BaseModel):
+    """Esquema de respuesta enriquecido."""
+    id: int
+    goles_favor: int
+    goles_contra: int
+    partidos_jugados: int
+    victorias: int
+    empates: int
+    derrotas: int
+    puntos: int
+    equipo: EquipoResumen
+    campeonato: CampeonatoResumen
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        """Crear desde atributos de objetos ORM."""
         from_attributes = True

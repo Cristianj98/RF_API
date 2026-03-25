@@ -2,21 +2,26 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.estadistica_equipo import EstadisticaEquipo
 from app.models.campeonato import Campeonato
-from app.schemas.estadisticas_equipo import EstadisticaEquipoResponse
+from app.schemas.estadisticas_equipo import (
+    EstadisticaEquipoDetalleResponse
+)
 from app.core.dependencies import require_authenticated
 
-router = APIRouter(prefix="/estadisticas-equipos",
-                   tags=["Estadísticas Equipos"])
+router = APIRouter(
+    prefix="/estadisticas-equipos",
+    tags=["Estadísticas Equipos"]
+    )
 
 
 @router.get(
     "/campeonato/{campeonato_id}",
-    response_model=List[EstadisticaEquipoResponse],
+    response_model=List[EstadisticaEquipoDetalleResponse],
     dependencies=[Depends(require_authenticated)]
 )
 async def listar_estadisticas_campeonato(
@@ -32,6 +37,10 @@ async def listar_estadisticas_campeonato(
 
     result = await db.execute(
         select(EstadisticaEquipo)
+        .options(
+            joinedload(EstadisticaEquipo.equipo),
+            joinedload(EstadisticaEquipo.campeonato)
+        )
         .where(EstadisticaEquipo.campeonato_id == campeonato_id)
         .order_by(EstadisticaEquipo.puntos.desc())
     )
@@ -40,7 +49,7 @@ async def listar_estadisticas_campeonato(
 
 @router.get(
     "/equipo/{equipo_id}/campeonato/{campeonato_id}",
-    response_model=EstadisticaEquipoResponse,
+    response_model=EstadisticaEquipoDetalleResponse,
     dependencies=[Depends(require_authenticated)]
 )
 async def obtener_estadistica_equipo(
@@ -50,7 +59,11 @@ async def obtener_estadistica_equipo(
 ):
     """Obtener estadísticas de un equipo en un campeonato específico."""
     estadistica = (await db.execute(
-        select(EstadisticaEquipo).where(
+        select(EstadisticaEquipo)
+        .options(
+            joinedload(EstadisticaEquipo.equipo),
+            joinedload(EstadisticaEquipo.campeonato)
+        ).where(
             EstadisticaEquipo.equipo_id == equipo_id,
             EstadisticaEquipo.campeonato_id == campeonato_id
         )

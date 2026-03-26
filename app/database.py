@@ -9,7 +9,7 @@ engine = create_async_engine(settings.database_url, echo=False)
 AsyncSessionLocal = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False)
 Base = declarative_base()
- 
+
 
 async def get_db():
     """Function to provide database session."""

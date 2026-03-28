@@ -1,6 +1,8 @@
 """Servicio para manejar la lógica de negocio de partidos."""
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.redis import get_redis
+from app.core.cache import delete_pattern
 
 from app.models.partido import Partido
 from app.models.acta_partido import ActaPartido
@@ -186,3 +188,19 @@ async def finalizar_partido(
         pos_visitante.puntos += 1
 
     await db.commit()
+
+    redis = await get_redis()
+    await delete_pattern(
+        redis,
+        f"posiciones:campeonato:{partido.campeonato_id}*"
+    )
+
+    await delete_pattern(
+        redis,
+        f"estadisticas_jugadores:campeonato:{partido.campeonato_id}*"
+    )
+
+    await delete_pattern(
+        redis,
+        f"estadisticas_equipos:campeonato:{partido.campeonato_id}*"
+    )

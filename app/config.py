@@ -35,6 +35,12 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 
+    """
+    Redis configuration
+    """
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+
     class Config:
         """Configuración de Pydantic para Settings."""
         env_file = ".env"

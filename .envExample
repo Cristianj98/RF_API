@@ -11,3 +11,6 @@ APP_NAME=RF App
 DEBUG=True
 SECRET_KEY=tu_clave_secreta_muy_segura_aquí
 
+# Redis Conection
+REDIS_HOST=tuhost
+REDIS_PORT=tu-puerto

@@ -10,6 +10,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
+from app.core.redis import init_redis, close_redis
 from sqlalchemy import text
 
 from app.database import Base, engine, get_db
@@ -36,8 +37,9 @@ async def lifespan(_app: FastAPI):
     """Código que se ejecuta al iniciar"""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    await init_redis()
     yield
-    # Código que se ejecuta al cerrar (opcional)
+    await close_redis()
     await engine.dispose()
 
 

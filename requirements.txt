@@ -35,3 +35,11 @@ python-multipart==0.0.21
 
 # Generación de datos de prueba
 Faker==18.3.0
+
+# Redis para optimizar consultas
+redis==5.0.1
+
+#Configuración de Limitantes
+aioredis-2.0.1
+fastapi-limiter-0.2.0
+pyrate-limiter-4.1.0

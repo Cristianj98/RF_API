@@ -30,3 +30,15 @@ class EquipoResponse(EquipoBase):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class PresignedUrlRequest(BaseModel):
+    """Request para generar una presigned URL."""
+    filename: str
+    content_type: str
+
+
+class PresignedUrlResponse(BaseModel):
+    """Respuesta con las URLs para subir el logo."""
+    upload_url: str
+    public_url: str

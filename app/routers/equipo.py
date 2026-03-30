@@ -8,12 +8,34 @@ from app.database import get_db
 from app.models.equipo import Equipo
 from app.models.campeonato import Campeonato
 from app.schemas.equipo import EquipoCreate, EquipoResponse, EquipoUpdate
+from app.schemas.equipo import PresignedUrlRequest, PresignedUrlResponse
+from app.services.r2 import generar_presigned_url
 from app.core.dependencies import (
     require_authenticated,
     require_directivo_campeonato
 )
 
 router = APIRouter(prefix="/equipos", tags=["Equipos"])
+
+
+@router.post(
+    "/presigned-upload-url",
+    response_model=PresignedUrlResponse,
+    dependencies=[Depends(require_directivo_campeonato)]
+)
+async def obtener_presigned_url(body: PresignedUrlRequest):
+    """Genera una URL firmada para subir la imagen directamente a R2."""
+    try:
+        return generar_presigned_url(
+            filename=body.filename,
+            content_type=body.content_type,
+            carpeta="equipos/logos"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error generando URL de subida: {str(e)}"
+        ) from e
 
 
 @router.post(

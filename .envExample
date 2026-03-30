@@ -14,3 +14,10 @@ SECRET_KEY=tu_clave_secreta_muy_segura_aquí
 # Redis Conection
 REDIS_HOST=tuhost
 REDIS_PORT=tu-puerto
+
+# Cloudflare R2
+R2_ACCOUNT_ID=tu_account_id
+R2_ACCESS_KEY_ID=tu_access_key
+R2_SECRET_ACCESS_KEY=tu_secret_key
+R2_BUCKET_NAME=tu_bucket
+R2_PUBLIC_URL=https://tu-bucket.tu-dominio.r2.dev
